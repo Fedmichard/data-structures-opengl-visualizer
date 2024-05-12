@@ -1,0 +1,10 @@
+^C:\USERS\FRANC\ONEDRIVE - FLORIDA GULF COAST UNIVERSITY\DOCUMENTS\1_PROJECTS\VISUAL\BUILD\CMAKEFILES\41D18FCCAF85CECEE294FB10BA421AE1\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual" "-BC:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/build" --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file "C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/build/visual_simulator_cpp.sln"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
