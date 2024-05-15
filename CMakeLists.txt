@@ -6,11 +6,13 @@ project(visual_simulator_cpp)
 set(CMAKE_CXX_STANDARD 17)
 
 include_directories(dependencies/GLFW/include)
+include_directories(dependencies/GLAD/include)
 link_directories(dependencies/GLFW/lib-vc2022)
 
-add_executable(visual_simulator_cpp src/main.cpp)
+add_executable(visual_simulator_cpp src/main.cpp src/glad.c)
 
 target_link_libraries(visual_simulator_cpp glfw3.lib)
-target_link_libraries(visual_simulator_cpp
-    opengl32.lib
-)
+target_link_libraries(visual_simulator_cpp opengl32.lib)
+target_link_libraries(visual_simulator_cpp user32.lib)
+target_link_libraries(visual_simulator_cpp gdi32.lib)
+target_link_libraries(visual_simulator_cpp shell32.lib)
