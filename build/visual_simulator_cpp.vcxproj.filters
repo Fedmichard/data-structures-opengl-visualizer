@@ -7,11 +7,22 @@
     <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\shader_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\header_files\shader_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{4970177A-045E-3DD7-8A61-74650A1B375A}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files">
       <UniqueIdentifier>{1C6CF910-B998-3C2A-8A0F-260BED5FEF2D}</UniqueIdentifier>
     </Filter>

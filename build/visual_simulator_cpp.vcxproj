@@ -315,6 +315,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   <ItemGroup>
     <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\main.cpp" />
     <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\glad.c" />
+    <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\shader_class.cpp" />
+    <ClInclude Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\header_files\shader_class.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\build\ZERO_CHECK.vcxproj">
