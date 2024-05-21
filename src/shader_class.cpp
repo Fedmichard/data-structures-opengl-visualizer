@@ -1,12 +1,5 @@
 #include <../../../header_files/shader_class.h>
 
-#include <GLAD/glad.h>
-
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-
 Shader::Shader(const char* vertexPath, const char* fragmentPath) {
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
@@ -34,14 +27,17 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
     }
     catch (std::ifstream::failure& e)
     {
+        // If file fails to load
         std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
     }
+    // stores our read vertex code into a char
     const char* vShaderCode = vertexCode.c_str();
     const char * fShaderCode = fragmentCode.c_str();
     // 2. compile shaders
     GLuint vertex, fragment;
     // vertex shader
     vertex = glCreateShader(GL_VERTEX_SHADER);
+    // use our read vertex code from shader.vert and used it as the source code
     glShaderSource(vertex, 1, &vShaderCode, NULL);
     glCompileShader(vertex);
     checkCompileErrors(vertex, "VERTEX");
@@ -98,6 +94,10 @@ void Shader::setInt(const std::string &name, int value) const {
 
 void Shader::setFloat(const std::string &name, float value) const { 
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value); 
+}
+
+void Shader::setFloat4(const std::string &name, float r, float g, float b) const { 
+    glUniform4f(glGetUniformLocation(ID, name.c_str()), r, g, b, 1.0f); 
 } 
 
 Shader::~Shader() {

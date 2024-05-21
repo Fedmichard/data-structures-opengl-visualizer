@@ -9,7 +9,10 @@ include_directories(dependencies/GLFW/include)
 include_directories(dependencies/GLAD/include)
 link_directories(dependencies/GLFW/lib-vc2022)
 
-add_executable(visual_simulator_cpp src/main.cpp src/glad.c src/shader_class.cpp header_files/shader_class.h)
+add_executable(visual_simulator_cpp src/main.cpp src/glad.c src/shader_class.cpp 
+src/ebo_class.cpp src/vbo_class.cpp src/vba_class.cpp header_files/shader_class.h 
+header_files/ebo_class.h header_files/vbo_class.h header_files/vba_class.h 
+)
 
 target_link_libraries(visual_simulator_cpp glfw3.lib)
 target_link_libraries(visual_simulator_cpp opengl32.lib)

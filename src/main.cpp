@@ -2,6 +2,9 @@
 #include <GLAD/glad.h>
 #include <GLFW/glfw3.h>
 #include <../../../header_files/shader_class.h>
+#include <../../../header_files/vba_class.h>
+#include <../../../header_files/vbo_class.h>
+#include <../../../header_files/ebo_class.h>
 
 void processInput(GLFWwindow* window); // Processes our input
 void framebuffer_size_callback(GLFWwindow* window, int width, int height); // Resizes function 
@@ -32,6 +35,7 @@ int main() {
 
     // vertex data for shape 1
     GLfloat vertices[] = {
+        // Positions          // Colors
          0.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // origin 0
          0.0f,  0.5f,  0.0f,  1.0f, 1.0f, 0.0f, // top 1
          0.5f,  0.25f, 0.0f,  1.0f, 0.0f, 1.0f, // right #1 2
@@ -71,8 +75,12 @@ int main() {
         2, 3, 4, // triangle 2
     };
 
-    Shader Shader1("C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader.vert",
+    Shader shader1("C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader.vert",
                    "C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader.frag");
+    Shader shader2("C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader.vert",
+                   "C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader2.frag");
+    Shader shader3("C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader.vert",
+                   "C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader3.frag");
 
     // Make sure to generate the VAO before the VBO
     // Create an unsigned int titled VAO to store configurations for or object
@@ -151,6 +159,7 @@ int main() {
         // 
         float timeValue = glfwGetTime();
         float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+        float moveValue = (cos(timeValue));
 
 
         // RENDERING COMMANDS
@@ -158,31 +167,21 @@ int main() {
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f); // setting the clear color
         glClear(GL_COLOR_BUFFER_BIT); // clearing our background with our clear color
 
-        // F
-        Shader1.use();
-        // int vertexColorLocation3 = glGetUniformLocation(yellowShaderProgram, "ourColor");
-        // activate the shader before drawing our first shape
-        // glUniform4f(vertexColorLocation3, 0.0f, greenValue, 0.0f, 1.0f);
-        // rebind VAO; sets the current context 
-        // glBindVertexArray(VAO[1]);
-        // draw elements
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        // glDrawArrays(GL_TRIANGLES, 0, 3);
-
-        // activate the shader before drawing our second shape
-        // glUseProgram(shaderProgram);
-        // int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-        // glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
-        // glBindVertexArray(VAO[0]);
-        // glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0); // used for our EBO
-
-        // activate the shader before drawing our third shape
-        // glUseProgram(redShaderProgram);
-        // int vertexColorLocation2 = glGetUniformLocation(redShaderProgram, "ourColor");
-        // glUniform4f(vertexColorLocation2, 0.0f, greenValue, 0.0f, 1.0f);
+        /*
+        shader1.use();
         glBindVertexArray(VAO[0]);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
 
+        shader3.use();
+        shader3.setFloat4("ourColor", 0.0f, greenValue, 0.0f);
+        glBindVertexArray(VAO[2]);
+        glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
+        */
+
+        shader2.use();
+        // shader2.setFloat("offset", moveValue);
+        glBindVertexArray(VAO[1]);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         // Check and call events and swap the buffers, to ensure image get's updated each frame
         glfwSwapBuffers(window); // swap back buffer (receives all rendering commands) and front buffer (outputs final image)

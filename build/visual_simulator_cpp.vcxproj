@@ -316,7 +316,13 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\main.cpp" />
     <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\glad.c" />
     <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\shader_class.cpp" />
+    <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\ebo_class.cpp" />
+    <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\vbo_class.cpp" />
+    <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\vba_class.cpp" />
     <ClInclude Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\header_files\shader_class.h" />
+    <ClInclude Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\header_files\ebo_class.h" />
+    <ClInclude Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\header_files\vbo_class.h" />
+    <ClInclude Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\header_files\vba_class.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\build\ZERO_CHECK.vcxproj">
