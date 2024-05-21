@@ -71,7 +71,8 @@ int main() {
         2, 3, 4, // triangle 2
     };
 
-    Shader Shader1("resource_files/Shaders/shader.vert", "resource_files/Shaders/shader.frag");
+    Shader Shader1("C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader.vert",
+                   "C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader.frag");
 
     // Make sure to generate the VAO before the VBO
     // Create an unsigned int titled VAO to store configurations for or object
