@@ -6,7 +6,7 @@ out vec3 ourColor;
 out vec4 pos;
 uniform float offset;
 void main() {
-    gl_Position = vec4(aPos.x + offset, -aPos.y, aPos.z, 1.0f); // flips all coords
+    gl_Position = vec4(aPos.x + offset, aPos.y, aPos.z, 1.0f); // flips all coords
     ourColor = aColor;
     vertexColorPink = vec4(1.0f, 0.5f, 1.0f, 1.0f);
     pos = gl_Position;

@@ -2,8 +2,8 @@
 #include <GLAD/glad.h>
 #include <GLFW/glfw3.h>
 #include <../../../header_files/shader_class.h>
-#include <../../../header_files/vba_class.h>
 #include <../../../header_files/vbo_class.h>
+#include <../../../header_files/vba_class.h>
 #include <../../../header_files/ebo_class.h>
 
 void processInput(GLFWwindow* window); // Processes our input
@@ -70,7 +70,7 @@ int main() {
         0.8f, -0.8f, 0.0f, // 4 right 2
     };
     // EBO data for shape 3
-    GLint indices2[] = {
+    GLuint indices2[] = {
         0, 1, 2, // triangle 1
         2, 3, 4, // triangle 2
     };
@@ -82,48 +82,30 @@ int main() {
     Shader shader3("C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader.vert",
                    "C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader3.frag");
 
-    // Make sure to generate the VAO before the VBO
-    // Create an unsigned int titled VAO to store configurations for or object
-    // Don't pass reference when you generate buffers/arrays necause we are passing an array, which is just memory
-    GLuint VAO[3]; // Generate an array of 3 VAOs, VAO[0], VAO[1], VAO[2] with their own unique ids
-    glGenVertexArrays(3, VAO); // Generate 3 ids for our VAO array that has 3 elements
-    
-    GLuint VBO[3]; // Creating a vertex buffer object so we can send our vertices and creates an id for access
-    glGenBuffers(3, VBO); // Bind our VBO to the buffer type GL_ARRAY_BUFFER (VBO)
-
-    GLuint EBO[2]; // Index buffer to store our indicies
-    glGenBuffers(2, EBO); // Generate a buffer id to the reference of EBO, bind our EBO to the buffer type GL_ELEMENT_ARRAY_BUFFER
-
     // Object 1
-    // Bind our current VAO (ALWAYS BIND VAO FIRST TO ENSURE STORING OF SUBSEQUENT OBJECTS)
-    glBindVertexArray(VAO[0]);
+    VBA VBA1;
+    VBA1.bind();
     // Bind our current VBO
-    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]); // bind our VBO to GL_ARRAY_BUFFER
-    // VBO data for our currently binded VBO
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // data stored in GL_ARRAY_BUFFER
+    VBO VBO1(vertices, sizeof(vertices));
+    EBO EBO1(indices, sizeof(indices));
     
-    // create an unsigned int titled EBO
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[0]); // bind GL_ELEMENT_ARRAY_BUFFER for our index buffer object EBO
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); // data stored in GL_ELEMENT_ARRAY_BUFFER
-
-    // VBO[0] currently binded
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // how we want opengl to interpret our vertex buffer data
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    // 
+    // vertex attrib. location 1; color attribute
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
+    // VBO[0] currently binded
     // Clear VBO, VAO, and EBO buffers to a null like state
     // unbind VAO first or your telling opengl to unbind VBO/EBO to unbind from the current VAO
-    glBindVertexArray(0); // VAO (not really necessary)
-    glBindBuffer(GL_ARRAY_BUFFER, 0); // VBO
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // EBO
+    VBA1.unBind(); // VAO (not really necessary)
+    VBO1.unBind();
+    EBO1.unBind();
 
     // Object 2
-    glBindVertexArray(VAO[1]);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(p2Vertices), p2Vertices, GL_STATIC_DRAW);
+    VBA VBA2;
+    VBA2.bind();
+    VBO VBO2(p2Vertices, sizeof(p2Vertices));
 
     // Vertex attrib. location 0; position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
@@ -132,25 +114,21 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    glBindVertexArray(0); // VAO (necessary since we have multiple)
-    glBindBuffer(GL_ARRAY_BUFFER, 0); // VBO
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // EBO
+    VBA2.unBind(); // VAO (necessary since we have multiple)
+    VBO2.unBind(); // VBO
 
     // Object 3
-    glBindVertexArray(VAO[2]);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(p3Vertices), p3Vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[1]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices2), indices2, GL_STATIC_DRAW);
+    VBA VBA3;
+    VBA3.bind();
+    VBO VBO3(p3Vertices, sizeof(p3Vertices));
+    EBO EBO2(indices2, sizeof(indices2));
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glBindVertexArray(0); // VAO (necessary since we have multiple)
-    glBindBuffer(GL_ARRAY_BUFFER, 0); // VBO
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // EBO
+    VBA3.unBind(); // VAO (not really necessary)
+    VBO3.unBind();
+    EBO2.unBind();
 
     // Main while loop
     while (!glfwWindowShouldClose(window)) { 
@@ -159,29 +137,29 @@ int main() {
         // 
         float timeValue = glfwGetTime();
         float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-        float moveValue = (cos(timeValue));
+        float moveValue = (cos(timeValue) * sin(timeValue));
 
 
         // RENDERING COMMANDS
-        // Background color
+        // Render background color
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f); // setting the clear color
         glClear(GL_COLOR_BUFFER_BIT); // clearing our background with our clear color
 
-        /*
+        // Render shapes
+        shader2.use();
+        shader2.setFloat("offset", moveValue);
+        VBA2.bind();
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
         shader1.use();
-        glBindVertexArray(VAO[0]);
+        VBA1.bind();
         glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
 
         shader3.use();
+        shader2.setFloat("offset", moveValue);
         shader3.setFloat4("ourColor", 0.0f, greenValue, 0.0f);
-        glBindVertexArray(VAO[2]);
+        VBA3.bind();
         glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
-        */
-
-        shader2.use();
-        // shader2.setFloat("offset", moveValue);
-        glBindVertexArray(VAO[1]);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         // Check and call events and swap the buffers, to ensure image get's updated each frame
         glfwSwapBuffers(window); // swap back buffer (receives all rendering commands) and front buffer (outputs final image)
@@ -190,10 +168,15 @@ int main() {
     }
 
     // unbind VAO first or your telling opengl to unbind VBO/EBO to unbind from the current VAO
-    glDeleteVertexArrays(3, VAO); // Delete our created vertex array to free space
-    glDeleteBuffers(3, VBO); // Delete our created vertex buffer to free space
-    // glDeleteProgram(shaderProgram); // delete our created shader program to free space
-    // glDeleteProgram(yellowShaderProgram); // delete our created shader program to free space
+    // Delete our created vertex buffer to free space
+    VBA1.remove();
+    VBA2.remove();
+    VBA3.remove();
+    VBO1.remove();
+    VBO2.remove();
+    VBO3.remove();
+    EBO1.remove();
+    EBO2.remove();
 
     // Delete window
     glfwDestroyWindow(window);

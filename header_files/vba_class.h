@@ -2,6 +2,7 @@
 #define VBA_H
 
 #include <GLAD/glad.h>
+#include <../../../header_files/vbo_class.h>
 
 #include <string>
 #include <fstream>
@@ -11,8 +12,11 @@
 class VBA
 {
 public:
-    VBA(/* args */);
-    ~VBA();
+    GLuint ID;
+    VBA();
+    void bind();
+    void unBind();
+    void remove();
 };
 
 #endif

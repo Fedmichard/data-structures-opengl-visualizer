@@ -8,11 +8,14 @@
 #include <sstream>
 #include <iostream>
 
-class EBO
-{
+class EBO {
 public:
-    EBO(/* args */);
-    ~EBO();
+    GLuint ID;
+    EBO(GLuint* indices, GLuint count);
+
+    void bind();
+    void unBind();
+    void remove();
 };
 
 #endif
