@@ -16,7 +16,10 @@
     <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\vbo_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\vba_class.cpp">
+    <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\vao_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\two_d_texture_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -30,7 +33,13 @@
     <ClInclude Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\header_files\vbo_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\header_files\vba_class.h">
+    <ClInclude Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\header_files\vao_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\header_files\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\header_files\two_d_texture_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

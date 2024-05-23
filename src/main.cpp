@@ -3,11 +3,18 @@
 #include <GLFW/glfw3.h>
 #include <../../../header_files/shader_class.h>
 #include <../../../header_files/vbo_class.h>
-#include <../../../header_files/vba_class.h>
+#include <../../../header_files/vao_class.h>
 #include <../../../header_files/ebo_class.h>
+#include <../../../header_files/two_d_texture_class.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include "../../../header_files/stb_image.h"
 
 void processInput(GLFWwindow* window); // Processes our input
 void framebuffer_size_callback(GLFWwindow* window, int width, int height); // Resizes function 
+
+GLfloat opacity = 0.2f;
+GLfloat offsetX = 0.0f;
+GLfloat offsetY = 0.0f;
 
 int main() {
     // Instantiate GLFW window
@@ -16,6 +23,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // which option we are configuring: GLFW_CONTEXT_VERSION_MAJOR
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6); // which option we are configuring: GLFW_CONTEXT_VERSION_MINOR
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Setting hint of GLFW_OPENGL_PROFILE, to the core profile
+    stbi_set_flip_vertically_on_load(true); // images will load right side up
 
     // Creates our window 800 x 800 titled hello world
     GLFWwindow* window = glfwCreateWindow(800, 800, "Hello World!", NULL, NULL);
@@ -35,14 +43,14 @@ int main() {
 
     // vertex data for shape 1
     GLfloat vertices[] = {
-        // Positions          // Colors
-         0.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // origin 0
-         0.0f,  0.5f,  0.0f,  1.0f, 1.0f, 0.0f, // top 1
-         0.5f,  0.25f, 0.0f,  1.0f, 0.0f, 1.0f, // right #1 2
-         0.5f, -0.25f, 0.0f,  1.0f, 0.0f, 0.0f, // right #2 3
-        -0.5f,  0.25f, 0.0f,  0.0f, 1.0f, 1.0f, // left #1 4
-        -0.5f, -0.25f, 0.0f,  0.0f, 1.0f, 0.0f, // left #2 5
-         0.0f, -0.5f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom 4 6
+        // Positions          // Colors          // Texture coords
+         0.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f, // origin 0
+         0.0f,  0.5f,  0.0f,  1.0f, 1.0f, 0.0f,  1.0f, 2.0f, // top 1
+         0.5f,  0.25f, 0.0f,  1.0f, 0.0f, 1.0f,  2.0f, 1.5f, // right #1 2
+         0.5f, -0.25f, 0.0f,  1.0f, 0.0f, 0.0f,  2.0f, 0.5f, // right #2 3
+        -0.5f,  0.25f, 0.0f,  0.0f, 1.0f, 1.0f,  0.0f, 1.5f, // left #1 4
+        -0.5f, -0.25f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.5f, // left #2 5
+         0.0f, -0.5f,  0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, // bottom 4 6
     };
     // index data, how we want to draw our shape based on pattern of indexes
     // 4 total indexes
@@ -54,26 +62,6 @@ int main() {
         0, 5, 3, // triangle 4
         5, 3, 6, // triangle 5
     };
-    // vertex data for shape 2
-    GLfloat p2Vertices[] = {
-        // Positions         // colors
-         0.0f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f, // Top
-        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f, // Left
-         0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f, // Right
-    };
-    // vertex data for shape 3
-    GLfloat p3Vertices[] = {
-        -0.8f, -0.8f, 0.0f, // 0 left 1
-        -0.4f, -0.4f, 0.0f, // 1 top 1
-        0.0f, -0.8f, 0.0f, // 2 right 1
-        0.4f, -0.4f, 0.0f, // 3 top 2
-        0.8f, -0.8f, 0.0f, // 4 right 2
-    };
-    // EBO data for shape 3
-    GLuint indices2[] = {
-        0, 1, 2, // triangle 1
-        2, 3, 4, // triangle 2
-    };
 
     Shader shader1("C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader.vert",
                    "C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader.frag");
@@ -82,53 +70,52 @@ int main() {
     Shader shader3("C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader.vert",
                    "C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader3.frag");
 
+    // Generate texture ID and store it within our texture instances ID variable 
+    // texture0
+    glActiveTexture(GL_TEXTURE0);
+    TwoDTexture texture0;
+
+    // set the texture wrapping/filtering options (on the currently bound texture object)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    texture0.genTexture("C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Textures/container.jpg");
+
+    glActiveTexture(GL_TEXTURE1);
+    TwoDTexture texture1;
+
+    // set the texture wrapping/filtering options (on the currently bound texture object)
+    // set the parameters for the x axis to repeat
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+    // set the parameters for the y axis to repeat
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set the parameters for when minimizing to a linear mipmap
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    // set the parameters for when magnifying to linear
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    texture1.genTexture("C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Textures/maxresdefault.jpg");
+
     // Object 1
-    VBA VBA1;
-    VBA1.bind();
+    VAO VAO1;
     // Bind our current VBO
     VBO VBO1(vertices, sizeof(vertices));
     EBO EBO1(indices, sizeof(indices));
     
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     // vertex attrib. location 1; color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    // vertrex attrib. location 2; texture coords
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
-    // VBO[0] currently binded
-    // Clear VBO, VAO, and EBO buffers to a null like state
-    // unbind VAO first or your telling opengl to unbind VBO/EBO to unbind from the current VAO
-    VBA1.unBind(); // VAO (not really necessary)
+    VAO1.unBind(); // VAO (not really necessary)
     VBO1.unBind();
     EBO1.unBind();
-
-    // Object 2
-    VBA VBA2;
-    VBA2.bind();
-    VBO VBO2(p2Vertices, sizeof(p2Vertices));
-
-    // Vertex attrib. location 0; position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    // vertex attrib. location 1; color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    VBA2.unBind(); // VAO (necessary since we have multiple)
-    VBO2.unBind(); // VBO
-
-    // Object 3
-    VBA VBA3;
-    VBA3.bind();
-    VBO VBO3(p3Vertices, sizeof(p3Vertices));
-    EBO EBO2(indices2, sizeof(indices2));
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    VBA3.unBind(); // VAO (not really necessary)
-    VBO3.unBind();
-    EBO2.unBind();
 
     // Main while loop
     while (!glfwWindowShouldClose(window)) { 
@@ -146,19 +133,21 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT); // clearing our background with our clear color
 
         // Render shapes
-        shader2.use();
-        shader2.setFloat("offset", moveValue);
-        VBA2.bind();
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        // shader2.use();
+        // shader2.setFloat("offset", moveValue);
+        // VAO2.bind();
+        // glDrawArrays(GL_TRIANGLES, 0, 3);
 
         shader1.use();
-        VBA1.bind();
-        glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
-
-        shader3.use();
-        shader2.setFloat("offset", moveValue);
-        shader3.setFloat4("ourColor", 0.0f, greenValue, 0.0f);
-        VBA3.bind();
+        // Automatically when we bind our first texture, texture unit 0 binds to that and activates
+        shader1.setFloat("opacity", opacity);
+        shader1.setFloat("offsetX", offsetX);
+        shader1.setFloat("offsetY", offsetY);
+        shader1.setInt("texture1", 0);
+        // or set it via the texture class
+        shader1.setInt("texture2", 1);
+        // shader3.setFloat4("ourColor", greenValue, greenValue - 0.1f, moveValue - 0.2f);
+        VAO1.bind();
         glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
 
         // Check and call events and swap the buffers, to ensure image get's updated each frame
@@ -169,14 +158,9 @@ int main() {
 
     // unbind VAO first or your telling opengl to unbind VBO/EBO to unbind from the current VAO
     // Delete our created vertex buffer to free space
-    VBA1.remove();
-    VBA2.remove();
-    VBA3.remove();
+    VAO1.remove();
     VBO1.remove();
-    VBO2.remove();
-    VBO3.remove();
     EBO1.remove();
-    EBO2.remove();
 
     // Delete window
     glfwDestroyWindow(window);
@@ -192,5 +176,51 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
+    } else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+        opacity += 0.0001f;
+
+        if (opacity >= 1.0f) {
+            opacity = 1.0f;
+        }
+
+    } else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+        opacity -= 0.0001f;
+
+        if (opacity <= 0.0f) {
+            opacity = 0.0f;
+        }
+
+    } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        offsetX -= 0.001f;
+        std::cout << "Offset on x: " << offsetX << std::endl;
+
+        if (offsetX <= -1.0f) {
+            offsetX = -1.0f;
+        }
+
+    } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        offsetX += 0.001f;
+        std::cout << "Offset on x: " << offsetX << std::endl;
+
+        if (offsetX >= 1.0f) {
+            offsetX = 1.0f;
+        }
+
+    } else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        offsetY += 0.001f;
+        std::cout << "Offset on x: " << offsetY << std::endl;
+
+        if (offsetY >= 1.0f) {
+            offsetY = 1.0f;
+        }
+
+    } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        offsetY -= 0.001f;
+        std::cout << "Offset on x: " << offsetY << std::endl;
+
+        if (offsetY <= -1.0f) {
+            offsetY = -1.0f;
+        }
+
     }
 }

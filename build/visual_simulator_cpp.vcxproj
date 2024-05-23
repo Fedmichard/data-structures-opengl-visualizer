@@ -318,11 +318,14 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\shader_class.cpp" />
     <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\ebo_class.cpp" />
     <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\vbo_class.cpp" />
-    <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\vba_class.cpp" />
+    <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\vao_class.cpp" />
+    <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\two_d_texture_class.cpp" />
     <ClInclude Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\header_files\shader_class.h" />
     <ClInclude Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\header_files\ebo_class.h" />
     <ClInclude Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\header_files\vbo_class.h" />
-    <ClInclude Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\header_files\vba_class.h" />
+    <ClInclude Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\header_files\vao_class.h" />
+    <ClInclude Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\header_files\stb_image.h" />
+    <ClInclude Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\header_files\two_d_texture_class.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\build\ZERO_CHECK.vcxproj">
