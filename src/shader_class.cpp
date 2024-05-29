@@ -1,4 +1,7 @@
 #include <../../../header_files/shader_class.h>
+#include <../../../header_files/glm/glm.hpp>
+#include <../../../header_files/glm/gtc/matrix_transform.hpp>
+#include <../../../header_files/glm/gtc/type_ptr.hpp>
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath) {
     // 1. retrieve the vertex/fragment source code from filePath
@@ -24,8 +27,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
         // convert stream into string
         vertexCode   = vShaderStream.str();
         fragmentCode = fShaderStream.str();
-    }
-    catch (std::ifstream::failure& e)
+    } catch (std::ifstream::failure& e)
     {
         // If file fails to load
         std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
@@ -102,4 +104,8 @@ void Shader::setFloat(const std::string &name, float value) const {
 
 void Shader::setFloat4(const std::string &name, float r, float g, float b) const { 
     glUniform4f(glGetUniformLocation(ID, name.c_str()), r, g, b, 1.0f); 
+} 
+
+void Shader::setMat4(const std::string &name, glm::mat4 trans) const { 
+    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(trans)); 
 } 

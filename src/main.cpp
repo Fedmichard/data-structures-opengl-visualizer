@@ -7,14 +7,19 @@
 #include <../../../header_files/ebo_class.h>
 #include <../../../header_files/two_d_texture_class.h>
 #define STB_IMAGE_IMPLEMENTATION
-#include "../../../header_files/stb_image.h"
+#include <../../../header_files/stb_image.h>
+#include <../../../header_files/glm/glm.hpp>
+#include <../../../header_files/glm/gtc/matrix_transform.hpp>
+#include <../../../header_files/glm/gtc/type_ptr.hpp>
 
 void processInput(GLFWwindow* window); // Processes our input
 void framebuffer_size_callback(GLFWwindow* window, int width, int height); // Resizes function 
+void moveChar();
 
 GLfloat opacity = 0.2f;
 GLfloat offsetX = 0.0f;
 GLfloat offsetY = 0.0f;
+GLfloat rotation = 0.0f;
 
 int main() {
     // Instantiate GLFW window
@@ -138,17 +143,38 @@ int main() {
         // VAO2.bind();
         // glDrawArrays(GL_TRIANGLES, 0, 3);
 
+        // rotate over the z axis
         shader1.use();
+        VAO1.bind();
         // Automatically when we bind our first texture, texture unit 0 binds to that and activates
         shader1.setFloat("opacity", opacity);
-        shader1.setFloat("offsetX", offsetX);
-        shader1.setFloat("offsetY", offsetY);
+        // set our first texture
         shader1.setInt("texture1", 0);
         // or set it via the texture class
         shader1.setInt("texture2", 1);
+        // set our transformation object 1
+        glm::mat4 trans = glm::mat4(1.0f);
+        trans = glm::translate(trans, glm::vec3(offsetX, offsetY, 0.0f));
+        trans = glm::rotate(trans, glm::radians(moveValue * 90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+        shader1.setMat4("transform", trans);
         // shader3.setFloat4("ourColor", greenValue, greenValue - 0.1f, moveValue - 0.2f);
-        VAO1.bind();
         glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
+
+        trans = glm::translate(trans, glm::vec3(-0.5, 0.5, 0.0f));
+        trans = glm::rotate(trans, glm::radians(-moveValue * 180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        shader1.setMat4("transform", trans);
+        glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
+
+        trans = glm::translate(trans, glm::vec3(-0.5, 0.5, 0.0f));
+        trans = glm::rotate(trans, glm::radians(-moveValue * 90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        shader1.setMat4("transform", trans);
+        glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
+
+        trans = glm::translate(trans, glm::vec3(-0.5, 0.5, 0.0f));
+        shader1.setMat4("transform", trans);
+        glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
+
 
         // Check and call events and swap the buffers, to ensure image get's updated each frame
         glfwSwapBuffers(window); // swap back buffer (receives all rendering commands) and front buffer (outputs final image)
@@ -192,35 +218,20 @@ void processInput(GLFWwindow* window) {
 
     } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
         offsetX -= 0.001f;
-        std::cout << "Offset on x: " << offsetX << std::endl;
-
-        if (offsetX <= -1.0f) {
-            offsetX = -1.0f;
-        }
 
     } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         offsetX += 0.001f;
-        std::cout << "Offset on x: " << offsetX << std::endl;
-
-        if (offsetX >= 1.0f) {
-            offsetX = 1.0f;
-        }
 
     } else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         offsetY += 0.001f;
-        std::cout << "Offset on x: " << offsetY << std::endl;
-
-        if (offsetY >= 1.0f) {
-            offsetY = 1.0f;
-        }
 
     } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
         offsetY -= 0.001f;
-        std::cout << "Offset on x: " << offsetY << std::endl;
 
-        if (offsetY <= -1.0f) {
-            offsetY = -1.0f;
-        }
+    } else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+        rotation -= 0.1f;
 
+    } else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+        rotation += 0.1f;
     }
 }
