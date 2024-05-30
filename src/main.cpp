@@ -18,8 +18,9 @@ void moveChar();
 
 GLfloat opacity = 0.2f;
 GLfloat offsetX = 0.0f;
-GLfloat offsetY = 0.0f;
-GLfloat rotation = 0.0f;
+GLfloat offsetZ = -3.0f;
+GLfloat rotationX = 0.0f;
+GLfloat rotationY = 0.0f;
 
 int main() {
     // Instantiate GLFW window
@@ -57,6 +58,7 @@ int main() {
         -0.5f, -0.25f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.5f, // left #2 5
          0.0f, -0.5f,  0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, // bottom 4 6
     };
+
     // index data, how we want to draw our shape based on pattern of indexes
     // 4 total indexes
     // EBO data for shape 1
@@ -66,6 +68,56 @@ int main() {
         4, 0, 5, // triangle 3
         0, 5, 3, // triangle 4
         5, 3, 6, // triangle 5
+    };
+
+    GLfloat vertices2[] = {
+        // Vertices          // Texture   
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+        // Vertices          // Texture
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+        // Vertices          // Texture
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        // Vertices          // Texture
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        // Vertices          // Texture
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+        // Vertices          // Texture
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
     Shader shader1("C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader.vert",
@@ -122,6 +174,18 @@ int main() {
     VBO1.unBind();
     EBO1.unBind();
 
+    VAO VAO2;
+    VBO VBO2(vertices2, sizeof(vertices2));
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    VAO2.unBind(); // VAO (not really necessary)
+    VBO2.unBind();
+
     // Main while loop
     while (!glfwWindowShouldClose(window)) { 
         // PROCESSING INPUT
@@ -137,6 +201,9 @@ int main() {
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f); // setting the clear color
         glClear(GL_COLOR_BUFFER_BIT); // clearing our background with our clear color
 
+        glEnable(GL_DEPTH_TEST);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         // Render shapes
         // shader2.use();
         // shader2.setFloat("offset", moveValue);
@@ -145,36 +212,80 @@ int main() {
 
         // rotate over the z axis
         shader1.use();
-        VAO1.bind();
+        VAO2.bind();
         // Automatically when we bind our first texture, texture unit 0 binds to that and activates
         shader1.setFloat("opacity", opacity);
         // set our first texture
         shader1.setInt("texture1", 0);
         // or set it via the texture class
         shader1.setInt("texture2", 1);
+        
         // set our transformation object 1
-        glm::mat4 trans = glm::mat4(1.0f);
-        trans = glm::translate(trans, glm::vec3(offsetX, offsetY, 0.0f));
-        trans = glm::rotate(trans, glm::radians(moveValue * 90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
-        shader1.setMat4("transform", trans);
+        glm::mat4 model = glm::mat4(1.0f);
+        // model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
+        // model = glm::rotate(model, glm::radians(moveValue * 90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(rotationX * 90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(rotationY * 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 view = glm::mat4(1.0f);
+        view = glm::translate(view, glm::vec3(offsetX, 0.0f, offsetZ));
+        glm::mat4 projection = glm::perspective(glm::radians(90.0f), 800.0f/600.0f, 0.1f, 100.0f);
+
+        // model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+        shader1.setMat4("projection", projection);
+        shader1.setMat4("view", view);
+        shader1.setMat4("model", model);
         // shader3.setFloat4("ourColor", greenValue, greenValue - 0.1f, moveValue - 0.2f);
-        glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
+        // glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        trans = glm::translate(trans, glm::vec3(-0.5, 0.5, 0.0f));
-        trans = glm::rotate(trans, glm::radians(-moveValue * 180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        shader1.setMat4("transform", trans);
-        glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
+        // Box 2.1
+        model = glm::rotate(model, glm::radians(moveValue * 1.5f * 90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(-moveValue * 0.5f  * 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        view = glm::translate(view, glm::vec3(2.3f, 0.0f, 2.5f));
 
-        trans = glm::translate(trans, glm::vec3(-0.5, 0.5, 0.0f));
-        trans = glm::rotate(trans, glm::radians(-moveValue * 90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        shader1.setMat4("transform", trans);
-        glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
+        // model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+        shader1.setMat4("projection", projection);
+        shader1.setMat4("view", view);
+        shader1.setMat4("model", model);
+        // shader3.setFloat4("ourColor", greenValue, greenValue - 0.1f, moveValue - 0.2f);
+        // glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        trans = glm::translate(trans, glm::vec3(-0.5, 0.5, 0.0f));
-        shader1.setMat4("transform", trans);
-        glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
+        // Box 2
+        model = glm::rotate(model, glm::radians(moveValue * 2.25f * 90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(-moveValue * 1.25f * 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        view = glm::translate(view, glm::vec3(-3.8f, -2.0f, 1.3));
 
+        // model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+        shader1.setMat4("projection", projection);
+        shader1.setMat4("view", view);
+        shader1.setMat4("model", model);
+        // shader3.setFloat4("ourColor", greenValue, greenValue - 0.1f, moveValue - 0.2f);
+        // glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // Box 3
+        model = glm::rotate(model, glm::radians(moveValue * 3.75f * 90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(-moveValue * -2.75f * 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        view = glm::translate(view, glm::vec3(-1.3f, 1.0f, -1.5f));
+
+        // model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+        shader1.setMat4("projection", projection);
+        shader1.setMat4("view", view);
+        shader1.setMat4("model", model);
+        // shader3.setFloat4("ourColor", greenValue, greenValue - 0.1f, moveValue - 0.2f);
+        // glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // VAO1.unBind();
+        // VAO2.bind();
+
+        // model = glm::translate(model, glm::vec3(-1.5f, 0.0f, 0.0f));
+        // trans = glm::rotate(trans, glm::radians(-moveValue * 180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        // shader1.setMat4("transform", model);
+        // glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
+
+        // VAO2.unBind();
 
         // Check and call events and swap the buffers, to ensure image get's updated each frame
         glfwSwapBuffers(window); // swap back buffer (receives all rendering commands) and front buffer (outputs final image)
@@ -202,36 +313,51 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
-    } else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+    } 
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
         opacity += 0.0001f;
 
         if (opacity >= 1.0f) {
             opacity = 1.0f;
         }
 
-    } else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
         opacity -= 0.0001f;
 
         if (opacity <= 0.0f) {
             opacity = 0.0f;
         }
 
-    } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
         offsetX -= 0.001f;
 
-    } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         offsetX += 0.001f;
 
-    } else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        offsetY += 0.001f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        offsetZ -= 0.001f;
 
-    } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        offsetY -= 0.001f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        offsetZ += 0.001f;
 
-    } else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        rotation -= 0.1f;
+    } 
+    if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
+        rotationX -= 0.0005f;
 
-    } else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-        rotation += 0.1f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
+        rotationX += 0.0005f;
+    } 
+    if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+        rotationY -= 0.0005f;
+
+    }
+    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+        rotationY += 0.0005f;
     }
 }
