@@ -12,15 +12,33 @@
 #include <../../../header_files/glm/gtc/matrix_transform.hpp>
 #include <../../../header_files/glm/gtc/type_ptr.hpp>
 
-void processInput(GLFWwindow* window); // Processes our input
-void framebuffer_size_callback(GLFWwindow* window, int width, int height); // Resizes function 
-void moveChar();
-
 GLfloat opacity = 0.2f;
-GLfloat offsetX = 0.0f;
-GLfloat offsetZ = -3.0f;
 GLfloat rotationX = 0.0f;
 GLfloat rotationY = 0.0f;
+GLfloat rotationZ = 0.0f;
+GLfloat offsetX = 0.0f;
+GLfloat offsetY = 0.0f;
+GLfloat angle;
+glm::vec3 direction;
+
+glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
+
+bool firstMouse = true;
+float yaw   = -90.0f;	// yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
+float pitch =  0.0f;
+float lastX =  800.0f / 2.0;
+float lastY =  600.0 / 2.0;
+float fov   =  45.0f;
+
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+
+void processInput(GLFWwindow* window, glm::vec3 direction); // Processes our input
+void framebuffer_size_callback(GLFWwindow* window, int width, int height); // Resizes function 
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 int main() {
     // Instantiate GLFW window
@@ -45,7 +63,11 @@ int main() {
     // Load GLAD so it configures to OpenGL
     gladLoadGL();
     // Specify the viewport of OpenGL in the window
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); 
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    // glfwSetCursorPosCallback(window, mouse_callback);
+    // glfwSetScrollCallback(window, scroll_callback);
+ 
 
     // vertex data for shape 1
     GLfloat vertices[] = {
@@ -120,12 +142,62 @@ int main() {
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
+    // Walls
+    GLfloat vertices3[] = {
+        // Vertices          // Texture   
+        -1.0f, 1.0f, 0.0f, // Top left 1      - 0
+        -0.975f, 0.975f, 0.0f, // Top Left 2      - 1
+        -1.0f, 0.975f, 0.0f, //                 - 2
+        -1.0f, -1.0f, 0.0f, // Bottom Left 1  - 3
+        -0.975f, -0.975f, 0.0f, // Bottom Left 2  - 4
+        -1.0f, -0.975f, 0.0f, //                - 5
+        1.0f,  1.0f, 0.0f, // Top Right 1     - 6
+        0.975f, 0.975f, 0.0f, // Top Right 2      - 7
+        1.0f, 0.975f, 0.0f, //                  - 8
+        1.0f,  -1.0f, 0.0f, // Bottom Right 1 - 9
+        0.975f, -0.975f, 0.0f, // Bottom Right 2  - 10
+        1.0f, -0.975f, 0.0f, //                 - 11
+    };
+
+    GLuint indices3[] = {
+        // Top Rectangle
+        0, 6, 2,
+        2, 6, 8,
+
+        // Left Rectangle
+        2, 1, 5,
+        1, 4, 5,
+
+        // Bottom Rectangle
+        3, 9, 5,
+        9, 11, 5,
+
+        // Right Rectangle
+        7, 8, 10,
+        8, 11, 10,
+    };
+
+    // Ants
+    GLfloat vertices4[] = {
+        -1.0f, 1.0f, 0.0f,
+        -1.0f, -1.0f, 0.0f,
+        1.0f, 1.0f, 0.0f,
+        1.0f, -1.0f, 0.0f,
+    };
+
+    GLuint indices4[] = {
+        0, 1, 2,
+        1, 2, 3,
+    };
+
     Shader shader1("C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader.vert",
                    "C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader.frag");
     Shader shader2("C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader.vert",
                    "C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader2.frag");
     Shader shader3("C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader.vert",
                    "C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader3.frag");
+    Shader shader4("C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/shader.vert",
+                   "C:/Users/franc/OneDrive - Florida Gulf Coast University/Documents/1_Projects/visual/resource_files/Shaders/antShader.frag");
 
     // Generate texture ID and store it within our texture instances ID variable 
     // texture0
@@ -177,20 +249,53 @@ int main() {
     VAO VAO2;
     VBO VBO2(vertices2, sizeof(vertices2));
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
     VAO2.unBind(); // VAO (not really necessary)
     VBO2.unBind();
 
+    VAO VAO3;
+    VBO VBO3(vertices3, sizeof(vertices3));
+    EBO EBO3(indices3, sizeof(indices3));
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    VAO3.unBind();
+    VBO3.unBind();
+    EBO3.unBind();
+
+    VAO VAOBug;
+    VBO VBO4(vertices4, sizeof(vertices4));
+    EBO EBO4(indices4, sizeof(indices4));
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    VAOBug.unBind();
+    VBO4.unBind();
+    EBO4.unBind();
+
     // Main while loop
     while (!glfwWindowShouldClose(window)) { 
+        angle = glm::radians(rotationZ * 90.0f);
+        glm::vec3 direction = glm::normalize(glm::vec3(-sin(angle), cos(angle), 0.0f));
+        // std::cout << "X: " << direction.x <<  ", Y: " << direction.y << std::endl;
+
         // PROCESSING INPUT
-        processInput(window);
-        // 
+        processInput(window, direction);
+
+        // Processing time
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
+        // Movement
+        
         float timeValue = glfwGetTime();
         float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
         float moveValue = (cos(timeValue) * sin(timeValue));
@@ -204,78 +309,90 @@ int main() {
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Render shapes
-        // shader2.use();
-        // shader2.setFloat("offset", moveValue);
-        // VAO2.bind();
-        // glDrawArrays(GL_TRIANGLES, 0, 3);
-
-        // rotate over the z axis
-        shader1.use();
-        VAO2.bind();
+        // Bind our shader and our vertex array buffer
+        shader3.use();
+        VAO3.bind();
         // Automatically when we bind our first texture, texture unit 0 binds to that and activates
-        shader1.setFloat("opacity", opacity);
+        // shader1.setFloat("opacity", opacity);
         // set our first texture
-        shader1.setInt("texture1", 0);
+        // shader1.setInt("texture1", 0);
         // or set it via the texture class
-        shader1.setInt("texture2", 1);
+        // shader1.setInt("texture2", 1);
         
         // set our transformation object 1
-        glm::mat4 model = glm::mat4(1.0f);
-        // model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
-        // model = glm::rotate(model, glm::radians(moveValue * 90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(rotationX * 90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(rotationY * 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        // glm::mat4 projection = glm::perspective(glm::radians(90.0f), 800.0f/600.0f, 0.1f, 100.0f);
+        glm::mat4 projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1000.0f, 1000.0f);
+        // Camera setup
         glm::mat4 view = glm::mat4(1.0f);
-        view = glm::translate(view, glm::vec3(offsetX, 0.0f, offsetZ));
-        glm::mat4 projection = glm::perspective(glm::radians(90.0f), 800.0f/600.0f, 0.1f, 100.0f);
+        // view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        // cube setup
+        glm::mat4 model = glm::mat4(1.0f);
+        // model = glm::rotate(model, glm::radians(rotationX * 90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+        // model = glm::scale(model, glm::vec3(0.0125f, 0.025f, 0.0f));
 
-        // model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-        shader1.setMat4("projection", projection);
-        shader1.setMat4("view", view);
-        shader1.setMat4("model", model);
-        // shader3.setFloat4("ourColor", greenValue, greenValue - 0.1f, moveValue - 0.2f);
-        // glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        shader3.setMat4("projection", projection);
+        shader3.setMat4("view", view);
+        shader3.setMat4("model", model);
+
+        glDrawElements(GL_TRIANGLES, 27, GL_UNSIGNED_INT, 0);
+
+        shader4.use();
+        VAOBug.bind();
+        // model = glm::rotate(model, glm::radians(rotationX * 90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::translate(model, glm::vec3(offsetX, offsetY, 0.0f));
+        model = glm::rotate(model, angle, glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, glm::vec3(0.05, 0.1, 0.0f));
+
+        shader4.setMat4("projection", projection);
+        shader4.setMat4("view", view);
+        shader4.setMat4("model", model);
+
+        glDrawElements(GL_TRIANGLES, 27, GL_UNSIGNED_INT, 0);
+
+
+        
+        // model = glm::rotate(model, glm::radians(rotationX * 90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::translate(model, glm::vec3(0.5f, 0.5f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.05, 0.1, 0.0f));
+
+        shader4.setMat4("model", model);
+
+        glDrawElements(GL_TRIANGLES, 27, GL_UNSIGNED_INT, 0);
+        // glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // Box 2.1
-        model = glm::rotate(model, glm::radians(moveValue * 1.5f * 90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(-moveValue * 0.5f  * 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        view = glm::translate(view, glm::vec3(2.3f, 0.0f, 2.5f));
+        // model = glm::rotate(model, glm::radians(moveValue * 1.5f * 90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        // model = glm::rotate(model, glm::radians(-moveValue * 0.5f  * 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        // model = glm::translate(model, glm::vec3(2.3f, 0.0f, 2.5f));
 
         // model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-        shader1.setMat4("projection", projection);
-        shader1.setMat4("view", view);
-        shader1.setMat4("model", model);
+        // shader1.setMat4("model", model);
         // shader3.setFloat4("ourColor", greenValue, greenValue - 0.1f, moveValue - 0.2f);
         // glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        // glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // Box 2
-        model = glm::rotate(model, glm::radians(moveValue * 2.25f * 90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(-moveValue * 1.25f * 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        view = glm::translate(view, glm::vec3(-3.8f, -2.0f, 1.3));
+        // model = glm::rotate(model, glm::radians(moveValue * 2.25f * 90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        // model = glm::rotate(model, glm::radians(-moveValue * 1.25f * 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        // model = glm::translate(model, glm::vec3(-3.8f, -2.0f, 1.3));
 
         // model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-        shader1.setMat4("projection", projection);
-        shader1.setMat4("view", view);
-        shader1.setMat4("model", model);
+        // shader1.setMat4("model", model);
         // shader3.setFloat4("ourColor", greenValue, greenValue - 0.1f, moveValue - 0.2f);
         // glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        // glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // Box 3
-        model = glm::rotate(model, glm::radians(moveValue * 3.75f * 90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(-moveValue * -2.75f * 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        view = glm::translate(view, glm::vec3(-1.3f, 1.0f, -1.5f));
+        // model = glm::rotate(model, glm::radians(moveValue * 3.75f * 90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        // model = glm::rotate(model, glm::radians(-moveValue * -2.75f * 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        // model = glm::translate(model, glm::vec3(-1.3f, 1.0f, -1.5f));
 
         // model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-        shader1.setMat4("projection", projection);
-        shader1.setMat4("view", view);
-        shader1.setMat4("model", model);
+        // shader1.setMat4("model", model);
         // shader3.setFloat4("ourColor", greenValue, greenValue - 0.1f, moveValue - 0.2f);
         // glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        // glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // VAO1.unBind();
         // VAO2.bind();
@@ -310,7 +427,47 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 } 
 
-void processInput(GLFWwindow* window) {
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+    lastX = xpos;
+    lastY = ypos;
+
+    float sensitivity = 0.1f; // change this value to your liking
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw += xoffset;
+    pitch += yoffset;
+
+    // make sure that when pitch is out of bounds, screen doesn't get flipped
+    if (pitch > 89.0f)
+        pitch = 89.0f;
+    if (pitch < -89.0f)
+        pitch = -89.0f;
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(front);
+}
+
+void processInput(GLFWwindow* window, glm::vec3 direction) {
+    const float cameraSpeed = 2.5f * deltaTime;
+    const float antSpeed = 1.0f * deltaTime;
+    const float rotationSpeed = 5.0f * deltaTime;
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     } 
@@ -331,20 +488,16 @@ void processInput(GLFWwindow* window) {
 
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        offsetX -= 0.001f;
-
+        offsetX -= antSpeed;
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        offsetX += 0.001f;
-
+        offsetX += antSpeed;
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        offsetZ -= 0.001f;
-
+        angle += antSpeed;
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        offsetZ += 0.001f;
-
+        offsetY -= antSpeed;
     } 
     if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
         rotationX -= 0.0005f;
@@ -360,4 +513,25 @@ void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
         rotationY += 0.0005f;
     }
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+        rotationZ += rotationSpeed;
+
+    }
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+        rotationZ -= rotationSpeed;
+
+    }
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+        offsetY += (direction.y * antSpeed);
+        offsetX += (direction.x * antSpeed);
+        std:: cout << direction.y << std::endl;
+    }
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    fov -= (float)yoffset;
+    if (fov < 1.0f)
+        fov = 1.0f;
+    if (fov > 45.0f)
+        fov = 45.0f;
 }
