@@ -35,10 +35,16 @@ float fov   =  45.0f;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+struct AABB {
+    glm::vec3 min;
+    glm::vec3 max;
+};
+
 void processInput(GLFWwindow* window, glm::vec3 direction); // Processes our input
 void framebuffer_size_callback(GLFWwindow* window, int width, int height); // Resizes function 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+bool testAABB(AABB* a, AABB* b);
 
 int main() {
     // Instantiate GLFW window
@@ -279,12 +285,13 @@ int main() {
     VAOBug.unBind();
     VBO4.unBind();
     EBO4.unBind();
+    
 
     // Main while loop
     while (!glfwWindowShouldClose(window)) { 
+        // Processing ant movement in direction
         angle = glm::radians(rotationZ * 90.0f);
         glm::vec3 direction = glm::normalize(glm::vec3(-sin(angle), cos(angle), 0.0f));
-        // std::cout << "X: " << direction.x <<  ", Y: " << direction.y << std::endl;
 
         // PROCESSING INPUT
         processInput(window, direction);
@@ -335,14 +342,23 @@ int main() {
         shader3.setMat4("view", view);
         shader3.setMat4("model", model);
 
+        // Binding box
+
         glDrawElements(GL_TRIANGLES, 27, GL_UNSIGNED_INT, 0);
 
         shader4.use();
         VAOBug.bind();
-        // model = glm::rotate(model, glm::radians(rotationX * 90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::translate(model, glm::vec3(offsetX, offsetY, 0.0f));
+
+        glm::vec3 position = glm::vec3(offsetX, offsetY, 0.0f);
+        glm::vec3 size = glm::vec3(0.05, 0.1, 0.0f);
+        model = glm::translate(model, position);
         model = glm::rotate(model, angle, glm::vec3(0.0f, 0.0f, 1.0f));
-        model = glm::scale(model, glm::vec3(0.05, 0.1, 0.0f));
+        model = glm::scale(model, size);
+
+        // Binding box
+        AABB ant1;
+        ant1.min = position + (-size);
+        ant1.max = position + size;
 
         shader4.setMat4("projection", projection);
         shader4.setMat4("view", view);
@@ -350,16 +366,30 @@ int main() {
 
         glDrawElements(GL_TRIANGLES, 27, GL_UNSIGNED_INT, 0);
 
+        shader4.setMat4("projection", projection);
+        shader4.setMat4("view", view);
 
-        
-        // model = glm::rotate(model, glm::radians(rotationX * 90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::translate(model, glm::vec3(0.5f, 0.5f, 0.0f));
-        model = glm::scale(model, glm::vec3(0.05, 0.1, 0.0f));
+        for (GLuint i = 1; i < 2; i++) {
+            glm::mat4 model = glm::mat4(1.0f);
+            glm::vec3 position1 = glm::vec3(0.0f + i * 0.5f, 0.0f, 0.0f);
+            glm::vec3 size = glm::vec3(0.05, 0.1, 0.0f);
+            model = glm::translate(model, position1);
+            // model = glm::rotate(model, glm::radians(0.0f + (i * 36.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
+            model = glm::scale(model, size);
 
-        shader4.setMat4("model", model);
+            // binding box
+            AABB ant2;
+            ant2.min = position1 + (-size);
+            ant2.max = position1 + size;
+            std::cout << testAABB(&ant1, &ant2) << std::endl;
+            if (testAABB(&ant1, &ant2)) {
+                position = position - glm::vec3(0.1f, 0.1f, 0.0f);
+            }
 
-        glDrawElements(GL_TRIANGLES, 27, GL_UNSIGNED_INT, 0);
-        // glDrawArrays(GL_TRIANGLES, 0, 36);
+             shader4.setMat4("model", model);
+
+            glDrawElements(GL_TRIANGLES, 27, GL_UNSIGNED_INT, 0);
+        }
 
         // Box 2.1
         // model = glm::rotate(model, glm::radians(moveValue * 1.5f * 90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -487,32 +517,6 @@ void processInput(GLFWwindow* window, glm::vec3 direction) {
         }
 
     }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        offsetX -= antSpeed;
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        offsetX += antSpeed;
-    }
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        angle += antSpeed;
-    }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        offsetY -= antSpeed;
-    } 
-    if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
-        rotationX -= 0.0005f;
-
-    }
-    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
-        rotationX += 0.0005f;
-    } 
-    if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
-        rotationY -= 0.0005f;
-
-    }
-    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
-        rotationY += 0.0005f;
-    }
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
         rotationZ += rotationSpeed;
 
@@ -524,7 +528,18 @@ void processInput(GLFWwindow* window, glm::vec3 direction) {
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
         offsetY += (direction.y * antSpeed);
         offsetX += (direction.x * antSpeed);
-        std:: cout << direction.y << std::endl;
+    }
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        offsetY += (direction.y * antSpeed);
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        offsetY -= antSpeed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        offsetX += (direction.y * antSpeed);
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        offsetX -= antSpeed;
     }
 }
 
@@ -534,4 +549,23 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
         fov = 1.0f;
     if (fov > 45.0f)
         fov = 45.0f;
+}
+
+bool testAABB(AABB* a, AABB* b) {
+    // if this is negative they have collided
+    float d1x = b->min.x - a->max.x;
+    float d1y = b->min.y - a->max.y;
+    float d2x = a->min.x - b->max.x;
+    float d2y = a->min.y - b->max.y;
+
+    // if the value is not negative, no collision
+    if (d1x > 0.0f || d1y > 0.0f) {
+        return false;
+    }
+
+    if (d2x > 0.0f || d2y > 0.0f) {
+        return false;
+    }
+
+    return true;
 }
