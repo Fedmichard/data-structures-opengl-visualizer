@@ -10,7 +10,8 @@ include_directories(dependencies/GLAD/include)
 link_directories(dependencies/GLFW/lib-vc2022)
 
 add_executable(visual_simulator_cpp src/main.cpp src/glad.c src/shader_class.cpp 
-src/ebo_class.cpp src/vbo_class.cpp src/vao_class.cpp src/two_d_texture_class.cpp
+src/ebo_class.cpp src/vbo_class.cpp src/vao_class.cpp src/two_d_texture_class.cpp 
+src/ant.cpp
 )
 
 target_link_libraries(visual_simulator_cpp glfw3.lib)

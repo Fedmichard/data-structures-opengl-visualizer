@@ -6,6 +6,7 @@
 #include <../../../header_files/vao_class.h>
 #include <../../../header_files/ebo_class.h>
 #include <../../../header_files/two_d_texture_class.h>
+#include <../../../header_files/ant.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <../../../header_files/stb_image.h>
 #include <../../../header_files/glm/glm.hpp>
@@ -369,9 +370,13 @@ int main() {
         shader4.setMat4("projection", projection);
         shader4.setMat4("view", view);
 
+        Ant ant3(shader4, glm::vec3(-0.25f, 0.0f, 0.0f), glm::vec3(0.05, 0.1, 0.0f), 0.0f);
+        Ant ant4(shader4, glm::vec3(-0.45f, 0.0f, 0.0f), glm::vec3(0.05, 0.1, 0.0f), 0.0f);
+        Ant ant5(shader4, glm::vec3(-0.85f, 0.0f, 0.0f), glm::vec3(0.05, 0.1, 0.0f), 0.0f);
+
         for (GLuint i = 1; i < 2; i++) {
             glm::mat4 model = glm::mat4(1.0f);
-            glm::vec3 position1 = glm::vec3(0.0f + i * 0.5f, 0.0f, 0.0f);
+            glm::vec3 position1 = glm::vec3(0.0f + i * 0.15f, 0.0f, 0.0f);
             glm::vec3 size = glm::vec3(0.05, 0.1, 0.0f);
             model = glm::translate(model, position1);
             // model = glm::rotate(model, glm::radians(0.0f + (i * 36.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
