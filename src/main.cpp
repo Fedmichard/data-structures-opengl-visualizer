@@ -352,18 +352,21 @@ int main() {
 
         glm::vec3 position = glm::vec3(offsetX, offsetY, 0.0f);
         glm::vec3 size = glm::vec3(0.05, 0.1, 0.0f);
-        model = glm::translate(model, position);
-        model = glm::rotate(model, angle, glm::vec3(0.0f, 0.0f, 1.0f));
-        model = glm::scale(model, size);
+        // model = glm::translate(model, position);
+        // model = glm::rotate(model, angle, glm::vec3(0.0f, 0.0f, 1.0f));
+        // model = glm::scale(model, size);
 
         // Binding box
-        AABB ant1;
-        ant1.min = position + (-size);
-        ant1.max = position + size;
+        // AABB ant1;
+        // ant1.min = position + (-size);
+        // ant1.max = position + size;
+
 
         shader4.setMat4("projection", projection);
         shader4.setMat4("view", view);
-        shader4.setMat4("model", model);
+        Ant ant1(shader4, position, size, angle);
+        // Ant ant1(shader4, glm::vec3(-0.25f, 0.0f, 0.0f), glm::vec3(0.05, 0.1, 0.0f), 0.0f);
+        // shader4.setMat4("model", model);
 
         glDrawElements(GL_TRIANGLES, 27, GL_UNSIGNED_INT, 0);
 
@@ -374,6 +377,10 @@ int main() {
         Ant ant4(shader4, glm::vec3(-0.45f, 0.0f, 0.0f), glm::vec3(0.05, 0.1, 0.0f), 0.0f);
         Ant ant5(shader4, glm::vec3(-0.85f, 0.0f, 0.0f), glm::vec3(0.05, 0.1, 0.0f), 0.0f);
 
+        if ( ant1.testAABB(ant3.box) || ant1.testAABB(ant4.box) || ant1.testAABB(ant5.box) ) {
+            std::cout << "Collision Detected" << std::endl;
+        }
+
         for (GLuint i = 1; i < 2; i++) {
             glm::mat4 model = glm::mat4(1.0f);
             glm::vec3 position1 = glm::vec3(0.0f + i * 0.15f, 0.0f, 0.0f);
@@ -383,13 +390,13 @@ int main() {
             model = glm::scale(model, size);
 
             // binding box
-            AABB ant2;
-            ant2.min = position1 + (-size);
-            ant2.max = position1 + size;
-            std::cout << testAABB(&ant1, &ant2) << std::endl;
-            if (testAABB(&ant1, &ant2)) {
-                position = position - glm::vec3(0.1f, 0.1f, 0.0f);
-            }
+           //  AABB ant2;
+            // ant2.min = position1 + (-size);
+            // ant2.max = position1 + size;
+            // std::cout << testAABB(&ant1, &ant2) << std::endl;
+            //if (testAABB(&ant1, &ant2)) {
+              //  position = position - glm::vec3(0.1f, 0.1f, 0.0f);
+            //}
 
              shader4.setMat4("model", model);
 
