@@ -2,6 +2,7 @@
 #include <GLAD/glad.h>
 #include <GLFW/glfw3.h>
 #include <../../../header_files/shader_class.h>
+#include <../../../header_files/wall.h>
 #include <../../../header_files/vbo_class.h>
 #include <../../../header_files/vao_class.h>
 #include <../../../header_files/ebo_class.h>
@@ -151,37 +152,17 @@ int main() {
 
     // Walls
     GLfloat vertices3[] = {
-        // Vertices          // Texture   
-        -1.0f, 1.0f, 0.0f, // Top left 1      - 0
-        -0.975f, 0.975f, 0.0f, // Top Left 2      - 1
-        -1.0f, 0.975f, 0.0f, //                 - 2
-        -1.0f, -1.0f, 0.0f, // Bottom Left 1  - 3
-        -0.975f, -0.975f, 0.0f, // Bottom Left 2  - 4
-        -1.0f, -0.975f, 0.0f, //                - 5
-        1.0f,  1.0f, 0.0f, // Top Right 1     - 6
-        0.975f, 0.975f, 0.0f, // Top Right 2      - 7
-        1.0f, 0.975f, 0.0f, //                  - 8
-        1.0f,  -1.0f, 0.0f, // Bottom Right 1 - 9
-        0.975f, -0.975f, 0.0f, // Bottom Right 2  - 10
-        1.0f, -0.975f, 0.0f, //                 - 11
+        // Vertices 
+        -0.025f, 1.0f, 0.0f,
+        -0.025f, -1.0f, 0.0f,
+         0.025f, 1.0f, 0.0f,
+         0.025f, -1.0f, 0.0f,
     };
 
     GLuint indices3[] = {
         // Top Rectangle
-        0, 6, 2,
-        2, 6, 8,
-
-        // Left Rectangle
-        2, 1, 5,
-        1, 4, 5,
-
-        // Bottom Rectangle
-        3, 9, 5,
-        9, 11, 5,
-
-        // Right Rectangle
-        7, 8, 10,
-        8, 11, 10,
+        0, 1, 3,
+        0, 2, 3
     };
 
     // Ants
@@ -291,7 +272,7 @@ int main() {
     // Main while loop
     while (!glfwWindowShouldClose(window)) { 
         // Processing ant movement in direction
-        angle = glm::radians(rotationZ * 90.0f);
+        angle = glm::radians(rotationZ * 90);
         glm::vec3 direction = glm::normalize(glm::vec3(-sin(angle), cos(angle), 0.0f));
 
         // PROCESSING INPUT
@@ -334,18 +315,22 @@ int main() {
         glm::mat4 view = glm::mat4(1.0f);
         // view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         // cube setup
-        glm::mat4 model = glm::mat4(1.0f);
+        // glm::mat4 model = glm::mat4(1.0f);
         // model = glm::rotate(model, glm::radians(rotationX * 90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+        // model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
         // model = glm::scale(model, glm::vec3(0.0125f, 0.025f, 0.0f));
 
         shader3.setMat4("projection", projection);
         shader3.setMat4("view", view);
-        shader3.setMat4("model", model);
+        // shader3.setMat4("model", model);
 
         // Binding box
+        Wall leftWall(shader3, glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f), 0.0f);
+        // leftWall.wall.min = glm::vec3(-1.0f, -1.0f, 0.0f);
+        // leftWall.wall.max = glm::vec3(-0.975f, 0.975f, 0.0f);
+        
 
-        glDrawElements(GL_TRIANGLES, 27, GL_UNSIGNED_INT, 0);
+        // glDrawElements(GL_TRIANGLES, 27, GL_UNSIGNED_INT, 0);
 
         shader4.use();
         VAOBug.bind();
@@ -377,8 +362,12 @@ int main() {
         Ant ant4(shader4, glm::vec3(-0.45f, 0.0f, 0.0f), glm::vec3(0.05, 0.1, 0.0f), 0.0f);
         Ant ant5(shader4, glm::vec3(-0.85f, 0.0f, 0.0f), glm::vec3(0.05, 0.1, 0.0f), 0.0f);
 
-        if ( ant1.testAABB(ant3.box) || ant1.testAABB(ant4.box) || ant1.testAABB(ant5.box) ) {
+        if ( ant1.testAABB(ant3.box) || ant1.testAABB(ant4.box) || ant1.testAABB(ant5.box)) {
             std::cout << "Collision Detected" << std::endl;
+        }
+
+        if (leftWall.checkCollision(ant1)) {
+            std::cout << "Collision with wall" << std::endl;
         }
 
         for (GLuint i = 1; i < 2; i++) {

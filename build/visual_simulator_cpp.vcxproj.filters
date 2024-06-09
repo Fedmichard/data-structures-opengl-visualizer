@@ -25,6 +25,9 @@
     <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\ant.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\src\wall.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="C:\Users\franc\OneDrive - Florida Gulf Coast University\Documents\1_Projects\visual\CMakeLists.txt" />

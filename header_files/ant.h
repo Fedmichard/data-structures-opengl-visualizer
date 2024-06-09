@@ -31,7 +31,7 @@ public:
     Ant(Shader& shader, glm::vec3 position, glm::vec3 size, GLfloat angle);
     ~Ant();
 
-    bool testAABB(AABB& other);
+    bool testAABB(Ant::AABB& other);
 };
 
 #endif
